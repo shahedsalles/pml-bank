@@ -1,0 +1,48 @@
+------------------------------------------------------------------------
+--
+--
+-- File:            ModidUpdate.mac
+--   Type:          Macro
+--   Module:        design
+--
+-- Author:          S.Salles
+-- Created:         Sat June 02 10:29:47 2018
+--
+--
+-- Description:
+-- This macro changes the MODID and redirects it to new server for BIG DATA STATOIL
+-- This macro only works at SITE, ZONE OR XGEOM LEVEL.
+-- User should have write and claim access to modify the MODID otherwisw the item will be skipped and MODID won't update.
+-- Old Server //Jvn-mdat03.no.enterdir.com\pro_i\19609
+-- New server //BGN-MDAT02.NO.ENTERDIR.COM\Basic_E\78949
+-----------------------------------------------------------------------------------
+
+--Collection all XGEOM
+var !xgeom collect all XGEOM for CE
+
+
+--Checking the MODID to be updated
+do !x values !xgeom
+	$!x
+	!oldmodid = !!ce.modid	
+	!tobereplaced = !oldmodid.after('\\').before('\Shared')
+--	if !tobereplaced.Lowcase().eq('jvn-mdat03.no.enterdir.com\pro_i\19609') then
+--		!newmodid = !oldmodid.replace('$!tobereplaced','BGN-MDAT02.NO.ENTERDIR.COM\Basic_E\78949')
+	if !tobereplaced.Lowcase().eq('bgn-mdat02.no.enterdir.com\basic_e\78949') then
+		!newmodid = !oldmodid.replace('$!tobereplaced','jvn-mdat03.no.enterdir.com\pro_i\19609')
+	else
+		skip
+	endif
+	$p Old modid for $!x was $!oldmodid
+	$p new modid is $!newmodid
+	$P --------------------------------
+	unlock ce
+	handle any
+		SKIP
+	endhandle
+	MODID '$!newmodid'
+			handle any
+		SKIP
+	endhandle
+	lock ce
+enddo
