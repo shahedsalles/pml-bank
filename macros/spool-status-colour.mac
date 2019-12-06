@@ -1,0 +1,51 @@
+$* This macro will read from file spool-status.txt and will add items with certain colour based on spool status
+$* This is developed for Troll A EPCI Project
+
+--- This is to open the file and read from it line by line.
+AUTOCOLOUR OFF
+!input = object file('C:\Users\216688\OneDrive - Aker Solutions\spool-status.txt')
+!output = object file('C:\Users\216688\OneDrive - Aker Solutions\output-colouring')
+
+!inputData = !input.readfile()
+!compare = array()
+!ref = array()
+!status = array()
+!result = array ()
+
+do !v values !inputData
+	!ref.append(!v.split(';')[1])
+	!status.append(!v.split(';')[2])
+enddo
+
+
+var !dl drawlist
+!dlarr = !dl.split('')
+var !s coll all bran mem from !dlarr hier
+   do !i values !s 
+	$p $!i
+	!find = !ref.findfirst(!i)
+	if not(unset(!find)) then
+		$p THE FOUND ONE IS $!i and index is $!find
+		$p The status is $!status[$!find]
+		if !status[$!find].eq('LI05') then
+			!color = 'green'
+			!result.append('enhance $!ref[1] colour green')
+			enhance $!ref[$!find] colour green
+		elseif !status[$!find].eq('LI04') or !status[$!find].eq('LI07') or !status[$!find].eq('LI09') then
+			!color = 'yellow'
+			!result.append('enhance $!ref[1] colour yellow')
+			enhance $!ref[$!find] colour yellow
+		else 
+			!color = 'pink'
+			!result.append('enhance $!ref[1] colour pink')
+			enhance $!ref[$!find] colour pink
+		endif
+	--    ENHANCE $!<element> COLOUR RED
+	else
+		enhance $!i colour pink
+	endif
+	       
+enddo 
+
+
+q var !result
